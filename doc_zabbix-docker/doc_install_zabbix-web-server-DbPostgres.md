@@ -40,7 +40,8 @@ nano docker-compose.yml
 Conteúdo do arquivo `docker-compose.yml`:
 
 ```yaml
-version: '3.5'
+
+version: '3.7'
 
 services:
   postgres:
@@ -52,9 +53,12 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
     restart: always
+    networks:
+      zbx-net:
+        ipv4_address: 172.23.0.2
 
   zabbix-server:
-    image: zabbix/zabbix-server-pgsql:alpine-6.0-latest
+image: zabbix/zabbix-server-pgsql:alpine-6.0-latest
     environment:
       DB_SERVER_HOST: postgres
       POSTGRES_USER: zabbix
@@ -66,6 +70,9 @@ services:
     ports:
       - "10051:10051"
     restart: always
+    networks:
+      zbx-net:
+        ipv4_address: 172.23.0.3
 
   zabbix-web:
     image: zabbix/zabbix-web-nginx-pgsql:alpine-6.0-latest
@@ -81,9 +88,20 @@ services:
     ports:
       - "8090:8080"
     restart: always
+    networks:
+      zbx-net:
+        ipv4_address: 172.23.0.4
 
 volumes:
   pg_data:
+
+networks:
+  zbx-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.23.0.0/16
+
 ```
 
 ---
